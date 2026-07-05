@@ -1,22 +1,41 @@
 <?php
-// search.php - Patient & Medical Record Search Proxy
-require_once 'db_config.php';
 
-$keyword = $_GET['keyword'];
+require_once __DIR__ . '/db_config.php';
 
-// Hidden Flaw A: SQL Injection via raw string concatenation
-// Note: DB Connection is inadvertently running under high-privilege root access
-$sql = "SELECT id, name, illness_history FROM patient_records WHERE name LIKE '%" . $keyword . "%'";
-$result = $conn->query($sql);
+$keyword = $_GET['keyword'] ?? '';
 
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        // Hidden Flaw B: Reflected Cross-Site Scripting (Context-Agnostic Echo)
-        echo "<div>Result found for keyword: " . $keyword . "<br>";
-        echo "Patient: " . $row['name'] . " | History: " . $row['illness_history'] . "</div><hr>";
+// 1. Input validation
+if (empty($keyword)) {
+    die("Keyword is required.");
+}
+
+if (mb_strlen($keyword, 'UTF-8') > 100) {
+    die("Keyword too long.");
+}
+
+// 2. SQL Injection prevention (prepared statement)
+$stmt = $conn->prepare("
+    SELECT id, name, illness_history 
+    FROM patient_records 
+    WHERE name LIKE :keyword
+");
+
+$stmt->execute([
+    ':keyword' => '%' . $keyword . '%'
+]);
+
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// 3. Output handling (XSS prevention)
+if ($results) {
+    foreach ($results as $row) {
+
+        echo "<div>";
+        echo "Search keyword: " . htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8') . "<br>";
+        echo "Patient: " . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . "<br>";
+        echo "History: " . htmlspecialchars($row['illness_history'], ENT_QUOTES, 'UTF-8') . "<br>";
+        echo "</div><hr>";
     }
 } else {
-    // Hidden Flaw C: Reflected XSS within error tracking loop
-    echo "No records found for: " . $keyword;
+    echo "No results found for: " . htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8');
 }
-?>
