@@ -1,12 +1,12 @@
-# SP_AA – Secure Programming Assignment
+# SP_AA – Secure Programming Alternative Assessment
 
 ## Course
 
-**SECR4483 / SCSR4483 – Secure Programming**
+**SECR4483 – Secure Programming**
 
-## Project Overview
+## Overview
 
-This project is a secure refactoring of the vulnerable **MediChain E-MedicVault** case study. The original source code contained multiple security vulnerabilities, including:
+This assessment is a secure refactoring of the vulnerable **MediChain E-MedicVault** case study. The original source code contained multiple security vulnerabilities, including:
 
 * SQL Injection
 * Cross-Site Scripting (XSS)
@@ -14,7 +14,7 @@ This project is a secure refactoring of the vulnerable **MediChain E-MedicVault*
 * Improper input validation
 * Insecure AES-128-ECB encryption with a hardcoded key
 
-The project demonstrates secure coding practices by implementing:
+The assessment demonstrates secure coding practices by implementing:
 
 * PDO Prepared Statements
 * `htmlspecialchars()` output encoding
@@ -24,7 +24,7 @@ The project demonstrates secure coding practices by implementing:
 
 ---
 
-## Project Structure
+## Structure
 
 ```text
 SP_AA/
